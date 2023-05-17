@@ -663,23 +663,9 @@
 
       action = decodeHtml(action);
       
-      fetch(action)
-      .then(function(response) {
-        // Handle the response
-        if (response.ok) {
-          return response.text();
-        } else {
-          throw new Error('Network response was not OK');
-        }
-      })
-      .then(function(data) {
-        // Handle the fetched data
-        console.log(data);
-      })
-      .catch(function(error) {
-        // Handle any errors
-        console.error('Fetch error:', error);
-      });
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', action);
+      xhr.send();
       
     }
   }
