@@ -562,7 +562,7 @@
   const actionSelect = document.getElementById('actionSelect');
 
   // Event listener for input changes with inline function
-  actionSelect.addEventListener('input', () => {
+  actionSelect.addEventListener('input', function() {
     const content = actionSelect.innerHTML;
 
     // Remove line breaks, <br> tags, spaces, &nbsp;, and empty <div></div> tags outside of <span> tags
