@@ -98,7 +98,7 @@
 
   .wrapper img {
     filter: drop-shadow(0 0 8px #FFFFFF66);
-    width: 60px; height: 60px;
+    width: 66%; height: 66%;
     border-radius: 6px;
   }
   .wrapper img[data-invert="true"] {
@@ -124,6 +124,41 @@
     z-index: 10;
     position: relative;
     line-height: 0.4em;
+  }
+  #sizeSelect {
+    -webkit-appearance: none;
+    width: 50%;
+    max-width: 220px;
+    height: 25px;
+    background: #3d3d3d;
+    outline: none;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+    border-radius: 2000px;
+    overflow: hidden;
+    position: relative;
+    top: 7px;
+  }
+
+  #sizeSelect::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 25px;
+    background: rgb(221, 221, 221);
+    cursor: pointer;
+    box-shadow: -513px 0px 0 500px rgb(201, 201, 201);
+  }
+
+
+  #sizeSelect::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 25px;
+    background: white;
+    cursor: pointer;
+    box-shadow: -513px 0px 0 500px white;
   }
 
   #buttonEditor {
@@ -292,7 +327,11 @@
 </head>
 <body>
 <button class = "tButton" onclick="editBtn()" id="editBtn">Edit</button>
-<button class = "tButton" onclick="editVars()" id="editVars" style="display:none">Variables</button>
+<span id="editOptions" style = "display: none;">
+  <button class = "tButton" onclick="editVars()" id="editVars" style="display:none">Variables</button>
+  <label for="sizeSelect" style = "display: inline-block;">Button scale: </label>
+    <input type="range" id="sizeSelect" min="50" max="300" value="90">
+</span>
 <div class = "wrapper">
 <div id = "wrapper">
 
@@ -493,13 +532,7 @@
 </body>
 
 <script>
-  const btndata = localStorage.buttonsStore;
-  if(btndata != undefined) {
-    // document.getElementById("wrapper").innerHTML = btndata;
-  }
-
-
-
+  
   var editOn = false;
   var currentBtn = 0;
 
@@ -511,11 +544,20 @@
   const wrapper = document.getElementById("wrapper");
   const buttons = wrapper.getElementsByTagName("button");
 
+  const slider = document.getElementById("sizeSelect");
+
   
   const buttonCount = buttons.length;
 
+  var buttonSize = localStorage.buttonSize;
+  if(buttonSize == undefined) {buttonSize = 90; localStorage.buttonSize=buttonSize;}
+  slider.value=buttonSize;
+
   for(var i=0;i<buttonCount;i++){
     const cbutton = buttons[i];
+
+    cbutton.style.width = buttonSize + "px";
+    cbutton.style.height = buttonSize + "px";
 
     var newColor = localStorage.getItem("button-" + i + "-color");
     if(newColor == undefined) {newColor = "hidden";}
@@ -542,16 +584,18 @@
     
   }
 
+  
+
 
   function editBtn() {
     editOn = !editOn;
     for (var i = 0; i < buttons.length; i++) {
       if(editOn){
-        document.getElementById("editVars").style.display = "inline-block";
+        document.getElementById("editOptions").style.display = "inline-block";
         document.getElementById("editBtn").innerHTML = "Done";
         buttons[i].style.animation = "spin1 " + getRandomNumber(0.3, 0.5) + "s linear infinite";
       } else {
-        document.getElementById("editVars").style.display = "none";
+        document.getElementById("editOptions").style.display = "none";
         document.getElementById("editBtn").innerHTML = "Edit";
         buttons[i].style.animation="";
       }
@@ -811,6 +855,26 @@ function saveVars() {
 
 
 /*Other functions*/
+
+
+
+slider.addEventListener("input", function() {
+  const value = slider.value;
+  SetButtonSize(value);
+});
+
+  function SetButtonSize(buttonSize) {
+    localStorage.buttonSize = buttonSize;
+    if(buttonSize == undefined) {buttonSize = 90; localStorage.buttonSize=buttonSize;}
+
+    for(var i=0;i<buttonCount;i++){
+      const cbutton = buttons[i];
+
+      cbutton.style.width = buttonSize + "px";
+      cbutton.style.height = buttonSize + "px";
+
+    }
+  }
 
   function getRandomNumber(min, max) {
     return Math.random() * (max - min) + min;
