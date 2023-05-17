@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="full-screen" content="yes"/>
+<meta name="screen-orientation" content="landscape"/>
+<meta name="viewport" content="width=device-width, user-scalable=no">
+<meta name="apple-mobile-web-app-title" content="ButtonConnect">
+  
+<title>ButtonConnect</title>
+
+<style>
+  html {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  body {
+    background: black;
+    color: white;
+    font-family: Helvetica, sans-serif;
+    overflow: hidden;
+  }
+  button {
+    background: #EEE;
+    border: none;
+    padding: 8px;
+    border-radius: 1000px;
+  }
+  .wrapper {
+    padding: 10px;
+  }
+  .wrapper div {
+    /* display: flex; */
+    /* gap: 20px; */
+    /* justify-content: center; */
+    /* flex-wrap: wrap; */
+  }
+  .wrapper button {
+    width: 90px; height: 90px;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(255,255,255,0.5);
+    background-image: linear-gradient(170deg, #555, #111);
+
+    margin: 10px;
+
+    vertical-align: top 
+  }
+  
+  .wrapper [data-color="light"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(255, 255, 255, 0.748);
+    background-image: linear-gradient(170deg, #e4e4e4, #686868);
+  }
+  .wrapper [data-color="red"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(255,100,100,0.5);
+    background-image: linear-gradient(170deg, #E33, #311);
+  }
+  .wrapper [data-color="orange"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(222, 196, 100, 0.5);
+    background-image: linear-gradient(170deg, rgb(255, 140, 58), rgb(143, 85, 24));
+  }
+  .wrapper [data-color="yellow"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(200, 222, 100, 0.5);
+    background-image: linear-gradient(170deg, rgb(229, 238, 51), rgb(75, 79, 28));
+  }
+  .wrapper [data-color="green"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(100, 222, 133, 0.5);
+    background-image: linear-gradient(170deg, rgb(63, 206, 58), rgb(21, 64, 20));
+  }
+  .wrapper [data-color="blue"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(100, 122, 222, 0.5);
+    background-image: linear-gradient(170deg, rgb(51, 51, 238), rgb(24, 20, 64));
+  }
+  .wrapper [data-color="purple"] {
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(194, 100, 222, 0.5);
+    background-image: linear-gradient(170deg, rgb(188, 51, 238), rgb(52, 20, 64));
+  }
+  .wrapper [data-color="hidden"] {
+    visibility: hidden;
+    position: relative;
+  }
+  .wrapper [data-color="hidden"]::after {
+    content: "";
+    width: 88%;
+    height: 88%;
+    border-radius: 14px;
+    border: 6px solid rgb(19, 19, 19);
+    top: 50%; left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    visibility: visible;
+  }
+  
+
+  .wrapper img {
+    filter: drop-shadow(0 0 8px #FFFFFF66);
+    width: 60px; height: 60px;
+    border-radius: 6px;
+  }
+  .wrapper img[data-invert="true"] {
+    filter: invert(1) drop-shadow(0 0 8px #FFFFFF66);
+  }
+  img[src=""] {
+    display: none;
+  }
+  .wrapper span {
+    filter: drop-shadow(0 0 3px #FFFFFFE0);
+  }
+  .wrapper button * {
+    pointer-events: none;
+  }
+
+
+  .tButton{
+    background: #2d2d2d;
+    border: 0;
+    border-radius: 2000px;
+    padding: 1em;
+    color: rgb(177, 177, 177);
+    z-index: 10;
+    position: relative;
+    line-height: 0.4em;
+  }
+
+  #buttonEditor {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 300px;
+    max-width: 95%;
+    border-radius: 20px;
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(255,255,255,0.5);
+    background-image: linear-gradient(170deg, #555, #111);
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  #variableEditor {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px; height: 300px;
+    max-width: 95%;
+    border-radius: 20px;
+    box-shadow: 1px 4px 6px #000000B0, -1px -1.5px 10px rgba(255,255,255,0.5);
+    background-image: linear-gradient(170deg, #555, #111);
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: scroll;
+  }
+  .varName {
+    background: white;
+    color: black;
+    border-radius: 1000px;
+    border: none;
+    padding: 4px 8px;
+    margin: 0 14px 0 0;
+    width: 160px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+  }
+  #variableEditor div {
+    margin-bottom: 12px;
+  }
+  #variableEditor div button {
+    background: red; color: white;
+    border: 0;
+    border-radius: 2000px;
+    margin-left: 8px;
+  }
+  .varValue {
+    border: 0;
+    border-radius: 2px;
+    margin-left: 8px;
+    height: 20px;
+    width: 200px;
+  }
+
+
+
+
+  #buttonEditorBackdrop {
+    display: none;
+    position: fixed;
+    left: 0; top: 0; right: 0; bottom: 0;
+    -webkit-backdrop-filter: blur(6px);
+  }
+  label {
+    display: block;
+    font-size: 0.8em;
+  }
+
+  #actionSelect {
+    width:100%;
+    height:60px;
+    background: white;
+    color: black;
+    overflow: scroll;
+  }
+
+  .varChip {
+    padding: 0 8px;
+    background: black;
+    color: white;
+    margin: 4px;
+    border-radius: 2000px;
+    dispaly: inline-block;
+  }
+  #varList {
+    background: #CCC;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: scroll;
+    height: 40px;
+  }
+
+  @keyframes spin1 {
+    0% {
+      transform:rotate(0deg);
+    }
+    25% {
+      transform:rotate(-1.5deg);
+    }
+    50% {
+      transform:rotate(0deg);
+    }
+    75% {
+      transform:rotate(1.5deg);
+    }
+    100% {
+      transform:rotate(0deg);
+    }
+  }
+  
+  .wrapper {
+    /* height: 850px; */
+    overflow: hidden;
+    height: calc(100vh - 54px);
+    column-width: 100vw;
+    text-align: center;
+    position: fixed;
+    top: 28px; left: 0; right: 0; bottom: 0;
+  }
+  /*@media all and (max-height: 1045px) {
+    .wrapper {
+      height: 960px;
+    }
+  }
+  @media all and (max-height: 935px) {
+    .wrapper {
+      height: 850px;
+    }
+  }
+  @media all and (max-height: 825px) {
+    .wrapper {
+      height: 740px;
+    }
+  }
+  @media all and (max-height: 815px) {
+    .wrapper {
+      height: 640px;
+    }
+  }
+  @media all and (max-height: 705px) {
+    .wrapper {
+      height: 530px;
+    }
+  }
+  @media all and (max-height: 595px) {
+    .wrapper {
+      height: 420px;
+    }
+  }
+  @media all and (max-height: 485px) {
+    .wrapper {
+      height: 310px;
+    }
+  }
+  @media all and (max-height: 375px) {
+    .wrapper {
+      height: 205px;
+    }
+  }*/
+  
+
+</style>
+</head>
+<body>
+<button class = "tButton" onclick="editBtn()" id="editBtn">Edit</button>
+<button class = "tButton" onclick="editVars()" id="editVars" style="display:none">Variables</button>
+<div class = "wrapper">
+<div id = "wrapper">
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+<button><div><img src=""></div><span></span></button>
+
+
+
+</div>
+</div>
+
+<div id = "buttonEditorBackdrop"></div>
+
+<div id="variableEditor">
+  <div style="text-align: center;">Variables</div>
+
+  <div id="varEntry">
+    
+  </div>
+
+  <button onclick="newVar()">+ New Variable</button>
+
+  <button onclick="saveVars()">Save</button>
+</div>
+
+<div id = "buttonEditor">
+  <div style="text-align: center;">Button <span id="btnNumber">1</span></div>
+
+  <label>Label:</label>
+  <input id="labelSelect" style="width:100%;"></input>
+
+  <br>
+
+  <label>Icon URL:</label>
+  <input id="iconUrlSelect" style="width:80%;">
+  <span>Invert</span>
+  <label style = "position: fixed; opacity: 0; left: 2000%; pointer-events:none;">Invert?</label>
+  <input type="checkbox" id="invertSelect">
+
+  <br>
+
+  <label for="cars" style = "display: inline-block;">Color:</label>
+  <select id="colorSelect">
+    <option value="dark">&#11035; Dark</option>
+    <option value="light">&#11036; Light</option>
+    <option value="red">&#x1F7E5; Red</option>
+    <option value="orange">&#x1F7E7; Orange</option>
+    <option value="yellow">&#x1F7E8;  Yellow</option>
+    <option value="green">&#x1F7E9; Green</option>
+    <option value="blue">&#x1F7E6; Blue</option>
+    <option value="purple">&#x1F7EA; Purple</option>
+    <option value="hidden">&#x274C; Hidden</option>
+  </select>
+
+  <br>
+
+  <label>Action:</label>
+  <div id="actionSelect" contenteditable="true">
+  </div>
+  <div id="varList">
+  </div>
+
+  <br>
+
+  <button onclick="saveButton()">Save</button>
+</div>
+
+
+</body>
+
+<script>
+  const btndata = localStorage.buttonsStore;
+  if(btndata != undefined) {
+    // document.getElementById("wrapper").innerHTML = btndata;
+  }
+
+
+
+  var editOn = false;
+  var currentBtn = 0;
+
+  const buttonEditor = document.getElementById("buttonEditor");
+  const buttonEditorBackdrop = document.getElementById("buttonEditorBackdrop");
+
+  const variableEditor = document.getElementById("variableEditor");
+
+  const wrapper = document.getElementById("wrapper");
+  const buttons = wrapper.getElementsByTagName("button");
+
+  
+  const buttonCount = buttons.length;
+
+  for(var i=0;i<buttonCount;i++){
+    const cbutton = buttons[i];
+
+    var newColor = localStorage.getItem("button-" + i + "-color");
+    if(newColor == undefined) {newColor = "hidden";}
+    cbutton.setAttribute("data-color", newColor);
+
+    const newTitle = localStorage.getItem("button-" + i + "-title");
+    cbutton.getElementsByTagName("span")[0].innerHTML=newTitle;
+
+
+    var newIconUrl = localStorage.getItem("button-" + i + "-icon");
+    if(newIconUrl == undefined){newIconUrl = "";}
+    cbutton.getElementsByTagName('img')[0].setAttribute("src", newIconUrl);
+
+    const newInvertValue = localStorage.getItem("button-" + i + "-invert");
+    cbutton.getElementsByTagName('img')[0].setAttribute('data-invert', newInvertValue);
+
+
+    var newAction = localStorage.getItem("button-" + i + "-action");
+    if(newAction == undefined) {newAction = "";}
+    //newAction = newAction.replace("<br>","").replace('<span class="varChip" contenteditable="false">', "<").replace("</span>", ">")
+    cbutton.setAttribute('data-action', newAction);
+    
+
+    
+  }
+
+
+  function editBtn() {
+    editOn = !editOn;
+    for (let i = 0; i < buttons.length; i++) {
+      if(editOn){
+        document.getElementById("editVars").style.display = "inline-block";
+        document.getElementById("editBtn").innerHTML = "Done";
+        buttons[i].style.animation = "spin1 " + getRandomNumber(0.3, 0.5) + "s linear infinite";
+      } else {
+        document.getElementById("editVars").style.display = "none";
+        document.getElementById("editBtn").innerHTML = "Edit";
+        buttons[i].style.animation="";
+      }
+    }
+
+  }
+
+    // Get the content editable div
+  const actionSelect = document.getElementById('actionSelect');
+
+  // Event listener for input changes with inline function
+  actionSelect.addEventListener('input', () => {
+    const content = actionSelect.innerHTML;
+
+    // Remove line breaks, <br> tags, spaces, &nbsp;, and empty <div></div> tags outside of <span> tags
+    //const sanitizedContent = content.replace(/(?<!<span[^>]*)(<br>|\n|\s|&nbsp;|<div>|<\/div>)+(?!(<\/span>|[^<]*<\/span>))/g, '');
+    //re-written for older compatability:
+    const sanitizedContent = content.replace(/(<span[^>]*>)([^<]*)(<\/span>)/g, function(match, openTag, content, closeTag) {
+  const sanitizedContent = content.replace(/(<br>|\n|\s|&nbsp;|<div>|<\/div>)/g, '');
+  return openTag + sanitizedContent + closeTag;
+});
+
+
+    if (content !== sanitizedContent) {
+      actionSelect.innerHTML = sanitizedContent;
+    }
+
+    focusToActionSelect();
+  });
+
+  document.getElementById("varList").addEventListener("click", function(event) {
+    // if (event.target.tagName === "span") {
+      //const actionSelect = document.getElementById("actionSelect");
+      actionSelect.innerHTML += '<span class="varChip" contenteditable="false">' + event.target.innerHTML + '</span>';
+
+      focusToActionSelect();
+    // }
+  });
+
+  function focusToActionSelect() {
+    // Set focus to the content editable div
+    actionSelect.focus();
+
+    // Move the cursor to the end of the content
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(actionSelect);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  wrapper.addEventListener("click", function(event) {
+  if (event.target.tagName === "BUTTON") {
+    currentBtn = Array.prototype.indexOf.call(wrapper.children, event.target);
+
+    // Retrieve the saved variable names and values from local storage
+    var savedVarNames = localStorage.getItem("varNames");
+    var savedVarValues = localStorage.getItem("varValues");
+    
+    if(savedVarNames==undefined||savedVarValues==undefined){
+      savedVarNames = ""; savedVarValues = "";
+    }
+    
+    // Split the retrieved values into arrays, assuming each value is on a new line
+    const varNamesArray = savedVarNames.split("\n");
+    const varValuesArray = savedVarValues.split("\n");
+
+    if(editOn){
+      const cbutton = buttons[currentBtn];
+
+      document.getElementById("colorSelect").value = cbutton.getAttribute("data-color");
+      document.getElementById("labelSelect").value = cbutton.getElementsByTagName("span")[0].innerHTML;
+      var action = cbutton.getAttribute("data-action");
+      if(action == undefined) {action = "";}
+      document.getElementById("actionSelect").innerHTML = String(action).replace(">", "/span>").replace('<', '<span class="varChip" contenteditable="false">').replace('/span>', '</span>');
+      document.getElementById("invertSelect").checked = (cbutton.getElementsByTagName('img')[0].getAttribute('data-invert') == "true");
+
+      document.getElementById("iconUrlSelect").value = cbutton.getElementsByTagName('img')[0].getAttribute("src");
+
+      const varList = document.getElementById("varList");
+      varList.innerHTML="";
+
+      for (var i = 0; i < varNamesArray.length; i++) {
+        var varName = varNamesArray[i];
+        var varValue = varValuesArray[i];
+
+        if(varName != "") {
+          var span = document.createElement("span");
+          span.className="varChip";
+          span.contentEditable = false;
+          span.innerHTML = varName;
+
+          varList.appendChild(span);
+        }
+      }
+
+      buttonEditor.style.display = "block";
+      buttonEditorBackdrop.style.display = "block";
+      document.getElementById("btnNumber").innerHTML=currentBtn+1;
+    } else {
+      var action = event.target.getAttribute('data-action');
+
+      for (var i = 0; i < varNamesArray.length; i++) {
+        var varName = varNamesArray[i];
+        var varValue = varValuesArray[i];
+        
+        action = action.replace("<" + varName + ">", varValue);
+      }
+
+      action = decodeHtml(action);
+      
+      fetch(action)
+      .then(function(response) {
+        // Handle the response
+        if (response.ok) {
+          return response.text();
+        } else {
+          throw new Error('Network response was not OK');
+        }
+      })
+      .then(function(data) {
+        // Handle the fetched data
+        console.log(data);
+      })
+      .catch(function(error) {
+        // Handle any errors
+        console.error('Fetch error:', error);
+      });
+      
+    }
+  }
+});
+
+function saveButton() {
+  buttonEditor.style.display = "none";
+  buttonEditorBackdrop.style.display = "none";
+  const cbutton = buttons[currentBtn];
+
+  const newColor = document.getElementById("colorSelect").value;
+  cbutton.setAttribute("data-color", newColor);
+
+  const newTitle = document.getElementById("labelSelect").value;
+  cbutton.getElementsByTagName("span")[0].innerHTML=newTitle;
+
+
+  const newIconUrl = document.getElementById("iconUrlSelect").value;
+  cbutton.getElementsByTagName('img')[0].setAttribute("src", newIconUrl);
+
+  const newInvertValue = document.getElementById("invertSelect").checked;
+  cbutton.getElementsByTagName('img')[0].setAttribute('data-invert', newInvertValue);
+
+
+  var newAction = document.getElementById("actionSelect").innerHTML;
+  newAction = newAction.replace("<br>","").replace('<span class="varChip" contenteditable="false">', "<").replace("</span>", ">")
+
+
+  cbutton.setAttribute('data-action', newAction);
+
+  localStorage.setItem("button-" + currentBtn + "-color", newColor);
+  localStorage.setItem("button-" + currentBtn + "-title", newTitle);
+  localStorage.setItem("button-" + currentBtn + "-icon", newIconUrl);
+  localStorage.setItem("button-" + currentBtn + "-invert", newInvertValue);
+  localStorage.setItem("button-" + currentBtn + "-action", newAction);
+
+
+
+  //localStorage.buttonsStore = document.getElementById("wrapper").innerHTML;
+}
+
+/*Variable Editor*/
+
+const varEntry = document.getElementById("varEntry");
+
+function editVars() {
+  varEntry.innerHTML="";
+
+
+  // Retrieve the saved variable names and values from local storage
+  var savedVarNames = localStorage.getItem("varNames");
+  var savedVarValues = localStorage.getItem("varValues");
+
+  if(savedVarNames==undefined||savedVarValues==undefined){
+    savedVarNames = ""; savedVarValues = "";
+  }
+
+  // Split the retrieved values into arrays, assuming each value is on a new line
+  var varNamesArray = savedVarNames.split("\n");
+  var varValuesArray = savedVarValues.split("\n");
+
+  // Loop through the variable names
+  for (var i = 0; i < varNamesArray.length; i++) {
+    var varName = varNamesArray[i];
+    var varValue = varValuesArray[i];
+
+    newVarEntry(varName, varValue);
+  }
+
+
+  variableEditor.style.display = "block";
+  buttonEditorBackdrop.style.display = "block";
+}
+
+function newVarEntry(varName, varValue) {
+  // Create a div element to hold the inputs
+  var div = document.createElement("div");
+
+// Create the varName input element
+var varNameInput = document.createElement("input");
+varNameInput.type = "text";
+varNameInput.className = "varName";
+varNameInput.value = varName;
+
+// Create the varValue input element
+var varValueInput = document.createElement("input");
+varValueInput.type = "text";
+varValueInput.className = "varValue";
+varValueInput.value = varValue;
+
+//create the remove button
+var removeButton = document.createElement("button");
+removeButton.innerHTML = "Remove";
+removeButton.setAttribute("onclick", "removeVar(this)");
+
+// Append the inputs to the div
+div.appendChild(varNameInput);
+div.appendChild(varValueInput);
+div.appendChild(removeButton);
+
+// Append the div to the main div (varEntry)
+varEntry.appendChild(div);
+}
+
+function newVar() {
+  //varEntry.innerHTML += "<div><input class='varName'><input class='varValue'><button onclick='removeVar(this)'>Remove</button></div>"
+  newVarEntry("","");
+}
+function removeVar(e) {
+  e.parentNode.remove();
+}
+function saveVars() {
+
+  var varNames = "";
+  var varValues = "";
+
+  for (var i = 0; i < varEntry.children.length; i++) {
+    var child = varEntry.children[i];
+
+    // Check if the child element is a div
+    if (child.tagName === "DIV") {
+      // Find the varName and varValue inputs inside the current div
+      var varNameInput = child.querySelector(".varName");
+      var varValueInput = child.querySelector(".varValue");
+
+      // Extract the values and add them to the respective variables
+      var varName = varNameInput.value;
+      var varValue = varValueInput.value;
+      if(varName != ""){
+        varNames += (varNames==""?"":"\n") + varName;
+        varValues += (varValues==""?"":"\n") + varValue;
+      }
+    }
+  }
+
+  localStorage.setItem("varNames", varNames);
+  localStorage.setItem("varValues", varValues);
+
+  variableEditor.style.display = "none";
+  buttonEditorBackdrop.style.display = "none";
+}
+
+
+/*Other functions*/
+
+  function getRandomNumber(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  function decodeHtml(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+
+</script>
+
+</html>
