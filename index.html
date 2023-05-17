@@ -544,7 +544,7 @@
 
   function editBtn() {
     editOn = !editOn;
-    for (let i = 0; i < buttons.length; i++) {
+    for (var i = 0; i < buttons.length; i++) {
       if(editOn){
         document.getElementById("editVars").style.display = "inline-block";
         document.getElementById("editBtn").innerHTML = "Done";
