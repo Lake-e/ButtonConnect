@@ -97,18 +97,18 @@
   
 
   .wrapper img {
-    filter: drop-shadow(0 0 8px #FFFFFF66);
+    filter: drop-shadow(0 0 8px #FFFFFF66); -webkit-filter: drop-shadow(0 0 8px #FFFFFF66);
     width: 66%; height: 66%;
     border-radius: 6px;
   }
   .wrapper img[data-invert="true"] {
-    filter: invert(1) drop-shadow(0 0 8px #FFFFFF66);
+    filter: invert(1) drop-shadow(0 0 8px #FFFFFF66); -webkit-filter: invert(1) drop-shadow(0 0 8px #FFFFFF66);
   }
   img[src=""] {
     display: none;
   }
   .wrapper span {
-    filter: drop-shadow(0 0 3px #FFFFFFE0);
+    filter: drop-shadow(0 0 3px #FFFFFFE0); -webkit-filter: drop-shadow(0 0 3px #FFFFFFE0);
   }
   .wrapper button * {
     pointer-events: none;
@@ -223,7 +223,7 @@
     display: none;
     position: fixed;
     left: 0; top: 0; right: 0; bottom: 0;
-    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   }
   label {
     display: block;
@@ -273,7 +273,6 @@
   }
   
   .wrapper {
-    /* height: 850px; */
     overflow: hidden;
     height: calc(100vh - 54px);
     column-width: 100vw;
@@ -281,48 +280,7 @@
     position: fixed;
     top: 28px; left: 0; right: 0; bottom: 0;
   }
-  /*@media all and (max-height: 1045px) {
-    .wrapper {
-      height: 960px;
-    }
-  }
-  @media all and (max-height: 935px) {
-    .wrapper {
-      height: 850px;
-    }
-  }
-  @media all and (max-height: 825px) {
-    .wrapper {
-      height: 740px;
-    }
-  }
-  @media all and (max-height: 815px) {
-    .wrapper {
-      height: 640px;
-    }
-  }
-  @media all and (max-height: 705px) {
-    .wrapper {
-      height: 530px;
-    }
-  }
-  @media all and (max-height: 595px) {
-    .wrapper {
-      height: 420px;
-    }
-  }
-  @media all and (max-height: 485px) {
-    .wrapper {
-      height: 310px;
-    }
-  }
-  @media all and (max-height: 375px) {
-    .wrapper {
-      height: 205px;
-    }
-  }*/
   
-
 </style>
 </head>
 <body>
