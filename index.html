@@ -87,7 +87,6 @@
     content: "";
     width: 88%;
     height: 88%;
-    border-radius: 14px;
     border: 6px solid rgb(19, 19, 19);
     top: 50%; left: 50%;
     position: absolute;
@@ -97,18 +96,18 @@
   
 
   .wrapper img {
-    filter: drop-shadow(0 0 8px #FFFFFF66); -webkit-filter: drop-shadow(0 0 8px #FFFFFF66);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)); -webkit-filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
     width: 66%; height: 66%;
     border-radius: 6px;
   }
   .wrapper img[data-invert="true"] {
-    filter: invert(1) drop-shadow(0 0 8px #FFFFFF66); -webkit-filter: invert(1) drop-shadow(0 0 8px #FFFFFF66);
+    filter: invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)); -webkit-filter: invert(1) drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
   }
   img[src=""] {
     display: none;
   }
   .wrapper span {
-    filter: drop-shadow(0 0 3px #FFFFFFE0); -webkit-filter: drop-shadow(0 0 3px #FFFFFFE0);
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.88)); -webkit-filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.88));
   }
   .wrapper button * {
     pointer-events: none;
