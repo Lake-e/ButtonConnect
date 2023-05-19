@@ -173,7 +173,7 @@
     padding: 20px;
     box-sizing: border-box;
   }
-  #variableEditor {
+  #variableEditor, #webSocketEditor {
     display: none;
     position: fixed;
     top: 50%; left: 50%;
@@ -286,6 +286,7 @@
 <button class = "tButton" onclick="editBtn()" id="editBtn">Edit</button>
 <span id="editOptions" style = "display: none; width: 80%;">
   <button class = "tButton" onclick="editVars()" id="editVars">Variables</button>
+  <button class = "tButton" onclick="editWebSocket()">WebSocket</button>
   <label for="sizeSelect" style = "display: inline-block;">Button scale: </label>
     <input type="range" id="sizeSelect" min="50" max="300" value="90">
 </span>
@@ -431,6 +432,19 @@
 
 <div id = "buttonEditorBackdrop"></div>
 
+<div id="webSocketEditor">
+  <div style="text-align: center;">WebSocket Config</div>
+
+  <labe>Host:</labe>
+  <input id="wsHost" placeholder="ws://localhost:4455">
+  <label>Send on connect: (optional)</label>
+  <textarea id="wsSendOnConnect" style="width: 100%; height: 140px;"></textarea>
+
+
+  <br>
+  <button onclick="saveWebSocket()">Save</button>
+</div>
+
 <div id="variableEditor">
   <div style="text-align: center;">Variables</div>
 
@@ -474,8 +488,13 @@
 
   <br>
 
+  <select id="actionType">
+    <option value="http">HTTP GET request</option>
+    <option value="websocket">WebSocket Message</option>
+  </select>
+
   <label>Action:</label>
-  <div id="actionSelect" contenteditable="true">
+  <div id="actionSelect" contenteditable="plaintext-only">
   </div>
   <div id="varList">
   </div>
@@ -498,10 +517,14 @@
 
   var variableEditor = document.getElementById("variableEditor");
 
+  var webSocketEditor = document.getElementById("webSocketEditor");
+
   var wrapper = document.getElementById("wrapper");
   var buttons = wrapper.getElementsByTagName("button");
 
   var slider = document.getElementById("sizeSelect");
+
+  var socket;
 
   
   var buttonCount = buttons.length;
@@ -530,6 +553,10 @@
 
     var newInvertValue = localStorage.getItem("button-" + i + "-invert");
     cbutton.getElementsByTagName('img')[0].setAttribute('data-invert', newInvertValue);
+
+
+  var newActionType = localStorage.getItem("button-" + i + "-actiontype");
+  cbutton.setAttribute("data-actiontype", newActionType);
 
 
     var newAction = localStorage.getItem("button-" + i + "-action");
@@ -570,10 +597,12 @@
     // Remove line breaks, <br> tags, spaces, &nbsp;, and empty <div></div> tags outside of <span> tags
     //var sanitizedContent = content.replace(/(?<!<span[^>]*)(<br>|\n|\s|&nbsp;|<div>|<\/div>)+(?!(<\/span>|[^<]*<\/span>))/g, '');
     //re-written for older compatability:
-    var sanitizedContent = content.replace(/(<span[^>]*>)([^<]*)(<\/span>)/g, function(match, openTag, content, closeTag) {
+    var sanitizedContent = content.replace(/^(<br>)/, '');//disabled for now
+    
+    /*content.replace(/(<span[^>]*>)([^<]*)(<\/span>)/g, function(match, openTag, content, closeTag) {
   var sanitizedContent = content.replace(/(<br>|\n|\s|&nbsp;|<div>|<\/div>)/g, '');
   return openTag + sanitizedContent + closeTag;
-});
+});*/
 
 
     if (content !== sanitizedContent) {
@@ -621,14 +650,27 @@
     var varNamesArray = savedVarNames.split("\n");
     var varValuesArray = savedVarValues.split("\n");
 
+    var cbutton = buttons[currentBtn];
+
+    //get action type (http or websocket)
+    var actionType = cbutton.getAttribute("data-actiontype");
+    if(actionType == "null" || actionType == "") {actionType = "http"} //default to http
+
     if(editOn){
-      var cbutton = buttons[currentBtn];
 
       document.getElementById("colorSelect").value = cbutton.getAttribute("data-color");
       document.getElementById("labelSelect").value = cbutton.getElementsByTagName("span")[0].innerHTML;
+
+      //update acitontype selector
+      document.getElementById("actionType").value = actionType;
+
+
       var action = cbutton.getAttribute("data-action");
       if(action == undefined) {action = "";}
-      document.getElementById("actionSelect").innerHTML = String(action).replace(">", "/span>").replace('<', '<span class="varChip" contenteditable="false">').replace('/span>', '</span>');
+      document.getElementById("actionSelect").innerHTML = String(action).replace(/>/g, "/span>").replace(/</g, '<span class="varChip" contenteditable="false">').replace(/\/span>/g, '</span>').replace(/\n/g, "<br>");
+    
+
+
       document.getElementById("invertSelect").checked = (cbutton.getElementsByTagName('img')[0].getAttribute('data-invert') == "true");
 
       document.getElementById("iconUrlSelect").value = cbutton.getElementsByTagName('img')[0].getAttribute("src");
@@ -656,6 +698,7 @@
     } else {
       var action = event.target.getAttribute('data-action');
 
+
       for (var i = 0; i < varNamesArray.length; i++) {
         var varName = varNamesArray[i];
         var varValue = varValuesArray[i];
@@ -664,10 +707,16 @@
       }
 
       action = decodeHtml(action);
-      
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', action);
-      xhr.send();
+
+      if(actionType=="http"){
+        console.log("Sending http request", action);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', action);
+        xhr.send();
+      }else if(actionType=="websocket"){
+        console.log("Sending websocket message", action);
+        socket.send(action);
+      }
       
     }
   }
@@ -691,9 +740,12 @@ function saveButton() {
   var newInvertValue = document.getElementById("invertSelect").checked;
   cbutton.getElementsByTagName('img')[0].setAttribute('data-invert', newInvertValue);
 
+  var newActionType = document.getElementById("actionType").value;
+  cbutton.setAttribute("data-actiontype", newActionType);
 
-  var newAction = document.getElementById("actionSelect").innerHTML;
-  newAction = newAction.replace("<br>","").replace('<span class="varChip" contenteditable="false">', "<").replace("</span>", ">")
+
+  var newAction = document.getElementById("actionSelect").innerHTML.replace(/<br>/g, "\n");
+  newAction = newAction.replace('<span class="varChip" contenteditable="false">', "<").replace("</span>", ">")
 
 
   cbutton.setAttribute('data-action', newAction);
@@ -702,12 +754,15 @@ function saveButton() {
   localStorage.setItem("button-" + currentBtn + "-title", newTitle);
   localStorage.setItem("button-" + currentBtn + "-icon", newIconUrl);
   localStorage.setItem("button-" + currentBtn + "-invert", newInvertValue);
+  localStorage.setItem("button-" + currentBtn + "-actiontype", newActionType);
   localStorage.setItem("button-" + currentBtn + "-action", newAction);
 
 
 
   //localStorage.buttonsStore = document.getElementById("wrapper").innerHTML;
 }
+
+
 
 /*Variable Editor*/
 
@@ -809,6 +864,69 @@ function saveVars() {
   variableEditor.style.display = "none";
   buttonEditorBackdrop.style.display = "none";
 }
+
+
+
+
+/*WebSocket Editor*/
+
+function editWebSocket() {
+  document.getElementById("wsHost").value = localStorage.webSocketHost;
+  document.getElementById("wsSendOnConnect").value = localStorage.webSocketSendOnConnect;
+
+
+  webSocketEditor.style.display = "block";
+  buttonEditorBackdrop.style.display = "block";
+}
+
+function saveWebSocket(){
+  localStorage.webSocketHost = document.getElementById("wsHost").value;
+  localStorage.webSocketSendOnConnect = document.getElementById("wsSendOnConnect").value;
+  
+  webSocketEditor.style.display = "none";
+  buttonEditorBackdrop.style.display = "none";
+
+  setupSocket();
+}
+
+
+/* WebSocket Functions*/
+
+setupSocket();
+function setupSocket() {
+  socket = new WebSocket(localStorage.webSocketHost);
+
+  socket.onopen = function(e) {
+    console.log("[open] Connection established");
+    console.log("Sending inital message to server");
+    socket.send(localStorage.webSocketSendOnConnect);
+  };
+  socket.onmessage = function(event) {
+    console.log('[message] Data received from server: ', event.data);
+  };
+  socket.onclose = function(event) {
+    if (event.wasClean) {
+      console.log('[close] Connection closed cleanly');
+      console.log(event);
+    } else {
+      // e.g. server process killed or network down
+      // event.code is usually 1006 in this case
+      console.log('[close] Connection died');
+    }
+    console.log("Socket has closed. Reopening socket in 5 seconds...")
+    setTimeout(setupSocket, 5000);
+  };
+  socket.onerror = function(error) {
+    console.error(error);
+  };
+}
+
+
+
+
+
+
+
 
 
 /*Other functions*/
